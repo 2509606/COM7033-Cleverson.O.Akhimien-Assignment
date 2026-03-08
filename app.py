@@ -420,3 +420,32 @@ def archive_patient(patient_id):
     return redirect(url_for("patients"))
 
 
+# --- Admin routes ---
+
+@app.route("/admin/users")
+@admin_required
+def admin_users():
+    db = get_db()
+    users = db.execute(
+        "SELECT id, username, role, created_at FROM users ORDER BY created_at DESC"
+    ).fetchall()
+    return render_template("admin_users.html", users=users)
+
+
+@app.route("/audit")
+@admin_required
+def audit_log():
+    # I'll show the most recent audit entries at the top
+    logs = list(audit_collection.find().sort("timestamp", -1))
+    return render_template("audit_log.html", logs=logs)
+
+
+# --- App startup ---
+
+# I need to initialise the database and create the default admin when the app starts
+with app.app_context():
+    init_db()
+    seed_admin()
+
+if __name__ == "__main__":
+    app.run(debug=True, port=5001)

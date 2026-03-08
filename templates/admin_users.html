@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Manage Users - Patient Records{% endblock %}
+
+{% block content %}
+<h1>Registered Users</h1>
+<a href="{{ url_for('register') }}" class="btn">Register New User</a>
+
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Username</th>
+            <th>Role</th>
+            <th>Created At</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for user in users %}
+        <tr>
+            <td>{{ user.id }}</td>
+            <td>{{ user.username }}</td>
+            <td>{{ user.role }}</td>
+            <td>{{ user.created_at|datetimeformat }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

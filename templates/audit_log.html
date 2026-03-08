@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Audit Log - Patient Records{% endblock %}
+
+{% block content %}
+<h1>Audit Log</h1>
+
+{% if logs %}
+<table>
+    <thead>
+        <tr>
+            <th>Timestamp</th>
+            <th>User</th>
+            <th>Action</th>
+            <th>Patient ID</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for log in logs %}
+        <tr>
+            <td>{{ log.timestamp|datetimeformat }}</td>
+            <td>{{ log.username }}</td>
+            <td>{{ log.action }}</td>
+            <td>{{ log.patient_id or "N/A" }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>No audit log entries found.</p>
+{% endif %}
+{% endblock %}
