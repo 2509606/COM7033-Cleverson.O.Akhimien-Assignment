@@ -119,3 +119,32 @@ def check_csrf():
             flash("Invalid form submission. Please try again.", "error")
             return redirect(request.url)
 
+
+# --- Auth decorators ---
+
+# I need a way to check if the user is logged in before they can access certain pages
+# I'll create a simple decorator that checks the session
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if "user_id" not in session:
+            flash("Please log in to access this page.", "error")
+            return redirect(url_for("login"))
+        return f(*args, **kwargs)
+    return decorated_function
+
+
+# I also need a decorator for admin-only pages
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if "user_id" not in session:
+            flash("Please log in to access this page.", "error")
+            return redirect(url_for("login"))
+        if session.get("role") != "admin":
+            flash("You do not have permission to access this page.", "error")
+            return redirect(url_for("dashboard"))
+        return f(*args, **kwargs)
+    return decorated_function
+
+
