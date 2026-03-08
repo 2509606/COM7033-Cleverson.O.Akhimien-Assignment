@@ -148,3 +148,32 @@ def admin_required(f):
     return decorated_function
 
 
+# --- Patient validation helper ---
+
+# I need to validate patient form data to make sure nothing invalid gets saved
+def validate_patient_form(form):
+    errors = []
+    age = form.get("age", "").strip()
+    blood_pressure = form.get("blood_pressure", "").strip()
+
+    # I should check that age is a number within a reasonable range
+    if not age:
+        errors.append("Age is required.")
+    else:
+        try:
+            age_int = int(age)
+            if age_int < 0 or age_int > 150:
+                errors.append("Age must be between 0 and 150.")
+        except ValueError:
+            errors.append("Age must be a number.")
+
+    if not form.get("sex"):
+        errors.append("Sex is required.")
+
+    # I need to make sure blood pressure follows the format like 120/80
+    if blood_pressure and not re.match(r"^\d{2,3}/\d{2,3}$", blood_pressure):
+        errors.append("Blood pressure must be in the format 120/80.")
+
+    return errors
+
+
