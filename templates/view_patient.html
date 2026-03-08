@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}View Patient - Patient Records{% endblock %}
+
+{% block content %}
+<h1>Patient Details</h1>
+
+<div class="patient-details">
+    <table class="details-table">
+        <tr>
+            <th>Patient ID</th>
+            <td>{{ patient._id }}</td>
+        </tr>
+        <tr>
+            <th>Age</th>
+            <td>{{ patient.age }}</td>
+        </tr>
+        <tr>
+            <th>Sex</th>
+            <td>{{ patient.sex }}</td>
+        </tr>
+        <tr>
+            <th>Blood Pressure</th>
+            <td>{{ patient.blood_pressure or "N/A" }}</td>
+        </tr>
+        <tr>
+            <th>Cholesterol</th>
+            <td>{{ patient.cholesterol or "N/A" }}</td>
+        </tr>
+        <tr>
+            <th>Fasting Blood Sugar</th>
+            <td>{{ patient.fasting_blood_sugar or "N/A" }}</td>
+        </tr>
+        <tr>
+            <th>Resting ECG</th>
+            <td>{{ patient.resting_ecg or "N/A" }}</td>
+        </tr>
+        <tr>
+            <th>Exercise-Induced Angina</th>
+            <td>{{ patient.exercise_angina or "N/A" }}</td>
+        </tr>
+        <tr>
+            <th>Created By</th>
+            <td>{{ patient.created_by_name }}</td>
+        </tr>
+        <tr>
+            <th>Created At</th>
+            <td>{{ patient.created_at|datetimeformat }}</td>
+        </tr>
+        <tr>
+            <th>Status</th>
+            <td>{{ patient.status }}</td>
+        </tr>
+    </table>
+</div>
+
+<div class="action-links">
+    <a href="{{ url_for('edit_patient', patient_id=patient._id) }}" class="btn">Edit</a>
+    <a href="{{ url_for('patients') }}" class="btn btn-secondary">Back to List</a>
+</div>
+{% endblock %}

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Patient Record Management{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <!-- I need a navigation bar that changes based on whether the user is logged in and their role -->
+    <nav>
+        <div class="nav-brand">Patient Records</div>
+        <div class="nav-links">
+            {% if session.get("user_id") %}
+                <a href="{{ url_for('dashboard') }}">Dashboard</a>
+                <a href="{{ url_for('patients') }}">Patients</a>
+                {% if session.get("role") == "admin" %}
+                    <a href="{{ url_for('admin_users') }}">Users</a>
+                    <a href="{{ url_for('audit_log') }}">Audit Log</a>
+                {% endif %}
+                <span class="nav-user">{{ session.get("username") }} ({{ session.get("role") }})</span>
+                <a href="{{ url_for('logout') }}">Logout</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <main>
+        <!-- I want flash messages to appear at the top of every page -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- I want a back button on pages that aren't the main landing pages -->
+        {% if request.endpoint not in ("login", "dashboard", "index", "logout") %}
+            <a href="javascript:history.back()" class="back-link">&larr; Back</a>
+        {% endif %}
+
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>

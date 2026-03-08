@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Edit Patient - Patient Records{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <h1>Edit Patient Record</h1>
+    <form method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+        <label for="age">Age</label>
+        <input type="number" id="age" name="age" value="{{ patient.age }}" required>
+
+        <label for="sex">Sex</label>
+        <select id="sex" name="sex" required>
+            <option value="Male" {% if patient.sex == "Male" %}selected{% endif %}>Male</option>
+            <option value="Female" {% if patient.sex == "Female" %}selected{% endif %}>Female</option>
+        </select>
+
+        <label for="blood_pressure">Blood Pressure</label>
+        <input type="text" id="blood_pressure" name="blood_pressure" value="{{ patient.blood_pressure or '' }}" placeholder="e.g. 120/80">
+
+        <label for="cholesterol">Cholesterol</label>
+        <select id="cholesterol" name="cholesterol">
+            <option value="">-- Select --</option>
+            <option value="Normal" {% if patient.cholesterol == "Normal" %}selected{% endif %}>Normal</option>
+            <option value="Above Normal" {% if patient.cholesterol == "Above Normal" %}selected{% endif %}>Above Normal</option>
+            <option value="High" {% if patient.cholesterol == "High" %}selected{% endif %}>High</option>
+        </select>
+
+        <label for="fasting_blood_sugar">Fasting Blood Sugar > 120 mg/dl</label>
+        <select id="fasting_blood_sugar" name="fasting_blood_sugar">
+            <option value="">-- Select --</option>
+            <option value="Yes" {% if patient.fasting_blood_sugar == "Yes" %}selected{% endif %}>Yes</option>
+            <option value="No" {% if patient.fasting_blood_sugar == "No" %}selected{% endif %}>No</option>
+        </select>
+
+        <label for="resting_ecg">Resting ECG</label>
+        <select id="resting_ecg" name="resting_ecg">
+            <option value="">-- Select --</option>
+            <option value="Normal" {% if patient.resting_ecg == "Normal" %}selected{% endif %}>Normal</option>
+            <option value="Abnormal" {% if patient.resting_ecg == "Abnormal" %}selected{% endif %}>Abnormal</option>
+        </select>
+
+        <label for="exercise_angina">Exercise-Induced Angina</label>
+        <select id="exercise_angina" name="exercise_angina">
+            <option value="">-- Select --</option>
+            <option value="Yes" {% if patient.exercise_angina == "Yes" %}selected{% endif %}>Yes</option>
+            <option value="No" {% if patient.exercise_angina == "No" %}selected{% endif %}>No</option>
+        </select>
+
+        <button type="submit">Save Changes</button>
+    </form>
+    <a href="{{ url_for('view_patient', patient_id=patient._id) }}" class="btn btn-secondary">Cancel</a>
+</div>
+{% endblock %}

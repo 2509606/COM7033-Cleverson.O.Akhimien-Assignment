@@ -285,3 +285,138 @@ def dashboard():
     return render_template("dashboard.html", patient_count=patient_count)
 
 
+# --- Patient CRUD routes ---
+
+@app.route("/patients")
+@login_required
+def patients():
+    # I'll show all active patients in a table
+    all_patients = list(
+        patients_collection.find({"status": "active"}).sort("created_at", -1)
+    )
+    return render_template("patients.html", patients=all_patients)
+
+
+@app.route("/patient/add", methods=["GET", "POST"])
+@login_required
+def add_patient():
+    if request.method == "POST":
+        # I need to collect all the patient data from the form
+        patient = {
+            "age": request.form.get("age", "").strip(),
+            "sex": request.form.get("sex", ""),
+            "blood_pressure": request.form.get("blood_pressure", "").strip(),
+            "cholesterol": request.form.get("cholesterol", ""),
+            "fasting_blood_sugar": request.form.get("fasting_blood_sugar", ""),
+            "resting_ecg": request.form.get("resting_ecg", ""),
+            "exercise_angina": request.form.get("exercise_angina", ""),
+            "created_by": session["user_id"],
+            "created_by_name": session["username"],
+            "created_at": datetime.now().isoformat(),
+            "status": "active",
+        }
+
+        # I should validate the form data before saving
+        errors = validate_patient_form(request.form)
+        if errors:
+            for error in errors:
+                flash(error, "error")
+            return render_template("add_patient.html")
+
+        patient["age"] = int(patient["age"])
+
+        # Insert the patient record into the MongoDB Database
+        result = patients_collection.insert_one(patient)
+        
+        # Log the action to the audit log
+        log_action(session["user_id"], session["username"], "create", result.inserted_id)
+        flash("Patient record added successfully.", "success")
+        return redirect(url_for("patients"))
+
+    return render_template("add_patient.html")
+
+
+@app.route("/patient/<patient_id>")
+@login_required
+def view_patient(patient_id):
+    # I need to find the patient by their MongoDB ObjectId
+    try:
+        patient = patients_collection.find_one({"_id": ObjectId(patient_id)})
+    except Exception:
+        flash("Invalid patient ID.", "error")
+        return redirect(url_for("patients"))
+
+    if not patient:
+        flash("Patient not found.", "error")
+        return redirect(url_for("patients"))
+
+    log_action(session["user_id"], session["username"], "view", patient_id)
+    return render_template("view_patient.html", patient=patient)
+
+
+@app.route("/patient/<patient_id>/edit", methods=["GET", "POST"])
+@login_required
+def edit_patient(patient_id):
+    try:
+        patient = patients_collection.find_one({"_id": ObjectId(patient_id)})
+    except Exception:
+        flash("Invalid patient ID.", "error")
+        return redirect(url_for("patients"))
+
+    if not patient:
+        flash("Patient not found.", "error")
+        return redirect(url_for("patients"))
+
+    if request.method == "POST":
+        # I'll update the patient with the new form data
+        updated = {
+            "age": request.form.get("age", "").strip(),
+            "sex": request.form.get("sex", ""),
+            "blood_pressure": request.form.get("blood_pressure", "").strip(),
+            "cholesterol": request.form.get("cholesterol", ""),
+            "fasting_blood_sugar": request.form.get("fasting_blood_sugar", ""),
+            "resting_ecg": request.form.get("resting_ecg", ""),
+            "exercise_angina": request.form.get("exercise_angina", ""),
+        }
+
+        # I should validate the form data before saving
+        errors = validate_patient_form(request.form)
+        if errors:
+            for error in errors:
+                flash(error, "error")
+            return render_template("edit_patient.html", patient=patient)
+
+        updated["age"] = int(updated["age"])
+        patients_collection.update_one(
+            {"_id": ObjectId(patient_id)},
+            {"$set": updated}
+        )
+        log_action(session["user_id"], session["username"], "edit", patient_id)
+        flash("Patient record updated successfully.", "success")
+        return redirect(url_for("view_patient", patient_id=patient_id))
+
+    return render_template("edit_patient.html", patient=patient)
+
+
+# Only admins can archive patient records (soft delete)
+@app.route("/patient/<patient_id>/archive", methods=["POST"])
+@admin_required
+def archive_patient(patient_id):
+    try:
+        result = patients_collection.update_one(
+            {"_id": ObjectId(patient_id)},
+            {"$set": {"status": "archived"}}
+        )
+    except Exception:
+        flash("Invalid patient ID.", "error")
+        return redirect(url_for("patients"))
+
+    if result.modified_count == 0:
+        flash("Patient not found.", "error")
+    else:
+        log_action(session["user_id"], session["username"], "archive", patient_id)
+        flash("Patient record archived.", "success")
+
+    return redirect(url_for("patients"))
+
+
