@@ -232,3 +232,46 @@ def logout():
     return redirect(url_for("login"))
 
 
+# Only admins should be able to register new users
+@app.route("/register", methods=["GET", "POST"])
+@admin_required
+def register():
+    if request.method == "POST":
+        username = request.form.get("username", "").strip()
+        password = request.form.get("password", "")
+        role = request.form.get("role", "clinician")
+
+        # I should validate the input before creating a new user
+        if not username or not password:
+            flash("Username and password are required.", "error")
+            return render_template("register.html")
+
+        if role not in ("clinician", "admin"):
+            flash("Invalid role selected.", "error")
+            return render_template("register.html")
+
+        db = get_db()
+        # I need to check if the username already exists
+        existing = db.execute(
+            "SELECT id FROM users WHERE username = ?", (username,)
+        ).fetchone()
+        if existing:
+            flash("Username already exists.", "error")
+            return render_template("register.html")
+
+        db.execute(
+            "INSERT INTO users (username, password, role, created_at) VALUES (?, ?, ?, ?)",
+            (
+                username,
+                generate_password_hash(password),
+                role,
+                datetime.now().isoformat(),
+            ),
+        )
+        db.commit()
+        flash(f"User '{username}' registered successfully.", "success")
+        return redirect(url_for("admin_users"))
+
+    return render_template("register.html")
+
+

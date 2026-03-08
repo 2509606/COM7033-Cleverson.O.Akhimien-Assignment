@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Register User - Patient Records{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <h1>Register New User</h1>
+    <form method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" required>
+
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required>
+
+        <label for="role">Role</label>
+        <select id="role" name="role">
+            <option value="clinician">Clinician</option>
+            <option value="admin">Admin</option>
+        </select>
+
+        <button type="submit">Register</button>
+    </form>
+</div>
+{% endblock %}
