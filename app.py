@@ -177,3 +177,17 @@ def validate_patient_form(form):
     return errors
 
 
+# --- Audit log helper ---
+
+# I want to keep track of who does what with patient records
+# This helps with accountability and security auditing
+def log_action(user_id, username, action, patient_id=None):
+    audit_collection.insert_one({
+        "user_id": user_id,
+        "username": username,
+        "action": action,
+        "patient_id": str(patient_id) if patient_id else None,
+        "timestamp": datetime.now().isoformat(),
+    })
+
+
