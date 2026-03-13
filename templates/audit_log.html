@@ -1,31 +1,52 @@
 {% extends "base.html" %}
 {% block title %}Audit Log - Patient Records{% endblock %}
+{% block page_title %}Audit Log{% endblock %}
 
 {% block content %}
-<h1>Audit Log</h1>
+<div class="mb-6">
+    <h1 class="text-2xl font-semibold text-foreground tracking-tight">Audit Log</h1>
+    <p class="text-sm text-muted-foreground mt-1">Track all system activity and changes</p>
+</div>
 
 {% if logs %}
-<table>
-    <thead>
-        <tr>
-            <th>Timestamp</th>
-            <th>User</th>
-            <th>Action</th>
-            <th>Patient ID</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for log in logs %}
-        <tr>
-            <td>{{ log.timestamp|datetimeformat }}</td>
-            <td>{{ log.username }}</td>
-            <td>{{ log.action }}</td>
-            <td>{{ log.patient_id or "N/A" }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+<div class="bg-card border border-border rounded-xl shadow-sm overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+            <thead>
+                <tr class="border-b border-border bg-muted/50">
+                    <th class="text-left px-4 py-3 font-medium text-muted-foreground">Timestamp</th>
+                    <th class="text-left px-4 py-3 font-medium text-muted-foreground">User</th>
+                    <th class="text-left px-4 py-3 font-medium text-muted-foreground">Action</th>
+                    <th class="text-left px-4 py-3 font-medium text-muted-foreground">Patient ID</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in logs %}
+                <tr class="border-b border-border last:border-0 hover:bg-muted/30 transition-colors">
+                    <td class="px-4 py-3 text-muted-foreground text-xs">{{ log.timestamp|datetimeformat }}</td>
+                    <td class="px-4 py-3 font-medium">{{ log.username }}</td>
+                    <td class="px-4 py-3">
+                        {% if "create" in log.action|lower %}
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-emerald-50 text-emerald-700">{{ log.action }}</span>
+                        {% elif "archive" in log.action|lower or "delete" in log.action|lower %}
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-red-50 text-red-700">{{ log.action }}</span>
+                        {% elif "update" in log.action|lower or "edit" in log.action|lower %}
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-blue-50 text-blue-700">{{ log.action }}</span>
+                        {% else %}
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-secondary text-secondary-foreground">{{ log.action }}</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-4 py-3 font-mono text-xs text-muted-foreground">{{ log.patient_id or "N/A" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
 {% else %}
-<p>No audit log entries found.</p>
+<div class="bg-card border border-border rounded-xl shadow-sm p-12 text-center">
+    <svg class="w-12 h-12 mx-auto text-muted-foreground/40 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+    <p class="text-muted-foreground text-sm">No audit log entries found.</p>
+</div>
 {% endif %}
 {% endblock %}

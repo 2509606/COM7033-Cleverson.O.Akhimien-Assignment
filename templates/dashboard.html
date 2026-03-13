@@ -1,27 +1,95 @@
 {% extends "base.html" %}
 {% block title %}Dashboard - Patient Records{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
 
 {% block content %}
-<h1>Dashboard</h1>
-<p>Welcome, <strong>{{ session.get("username") }}</strong>. You are logged in as <strong>{{ session.get("role") }}</strong>.</p>
+<!-- Welcome -->
+<div class="mb-6">
+    <h1 class="text-2xl font-semibold text-foreground tracking-tight">Dashboard</h1>
+    <p class="text-sm text-muted-foreground mt-1">Welcome back, <span class="font-medium text-foreground">{{ session.get("username") }}</span>. You are logged in as <span class="font-medium text-foreground capitalize">{{ session.get("role") }}</span>.</p>
+</div>
 
-<div class="dashboard-stats">
-    <div class="stat-card">
-        <h2>{{ patient_count }}</h2>
-        <p>Active Patients</p>
+<!-- Stats cards -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+    <div class="bg-card border border-border rounded-xl p-5 shadow-sm">
+        <div class="flex items-center justify-between mb-3">
+            <p class="text-sm text-muted-foreground">Active Patients</p>
+            <svg class="w-4 h-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        </div>
+        <p class="text-3xl font-bold text-card-foreground tracking-tight">{{ patient_count }}</p>
+        <p class="text-xs text-muted-foreground mt-1">Total active records</p>
+    </div>
+
+    <div class="bg-card border border-border rounded-xl p-5 shadow-sm">
+        <div class="flex items-center justify-between mb-3">
+            <p class="text-sm text-muted-foreground">Your Role</p>
+            <svg class="w-4 h-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+        </div>
+        <p class="text-3xl font-bold text-card-foreground tracking-tight capitalize">{{ session.get("role") }}</p>
+        <p class="text-xs text-muted-foreground mt-1">Access level</p>
     </div>
 </div>
 
-<div class="dashboard-links">
-    <h2>Quick Actions</h2>
-    <ul>
-        <li><a href="{{ url_for('patients') }}">View All Patients</a></li>
-        <li><a href="{{ url_for('add_patient') }}">Add New Patient</a></li>
-        {% if session.get("role") == "admin" %}
-            <li><a href="{{ url_for('register') }}">Register New User</a></li>
-            <li><a href="{{ url_for('admin_users') }}">Manage Users</a></li>
-            <li><a href="{{ url_for('audit_log') }}">View Audit Log</a></li>
-        {% endif %}
-    </ul>
+<!-- Quick Actions -->
+<div class="bg-card border border-border rounded-xl shadow-sm">
+    <div class="p-5 border-b border-border">
+        <h2 class="text-base font-semibold text-card-foreground">Quick Actions</h2>
+        <p class="text-sm text-muted-foreground mt-0.5">Common tasks and shortcuts</p>
+    </div>
+    <div class="p-5">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            <a href="{{ url_for('patients') }}" class="group flex items-center gap-3 p-3 rounded-lg border border-border hover:bg-accent/60 transition-colors">
+                <div class="w-9 h-9 rounded-lg bg-secondary flex items-center justify-center shrink-0">
+                    <svg class="w-4 h-4 text-secondary-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-foreground group-hover:text-foreground">View All Patients</p>
+                    <p class="text-xs text-muted-foreground">Browse patient records</p>
+                </div>
+            </a>
+
+            <a href="{{ url_for('add_patient') }}" class="group flex items-center gap-3 p-3 rounded-lg border border-border hover:bg-accent/60 transition-colors">
+                <div class="w-9 h-9 rounded-lg bg-secondary flex items-center justify-center shrink-0">
+                    <svg class="w-4 h-4 text-secondary-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-foreground group-hover:text-foreground">Add New Patient</p>
+                    <p class="text-xs text-muted-foreground">Create a patient record</p>
+                </div>
+            </a>
+
+            {% if session.get("role") == "admin" %}
+            <a href="{{ url_for('register') }}" class="group flex items-center gap-3 p-3 rounded-lg border border-border hover:bg-accent/60 transition-colors">
+                <div class="w-9 h-9 rounded-lg bg-secondary flex items-center justify-center shrink-0">
+                    <svg class="w-4 h-4 text-secondary-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-foreground group-hover:text-foreground">Register User</p>
+                    <p class="text-xs text-muted-foreground">Add a new system user</p>
+                </div>
+            </a>
+
+            <a href="{{ url_for('admin_users') }}" class="group flex items-center gap-3 p-3 rounded-lg border border-border hover:bg-accent/60 transition-colors">
+                <div class="w-9 h-9 rounded-lg bg-secondary flex items-center justify-center shrink-0">
+                    <svg class="w-4 h-4 text-secondary-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-foreground group-hover:text-foreground">Manage Users</p>
+                    <p class="text-xs text-muted-foreground">View and manage accounts</p>
+                </div>
+            </a>
+
+            <a href="{{ url_for('audit_log') }}" class="group flex items-center gap-3 p-3 rounded-lg border border-border hover:bg-accent/60 transition-colors">
+                <div class="w-9 h-9 rounded-lg bg-secondary flex items-center justify-center shrink-0">
+                    <svg class="w-4 h-4 text-secondary-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-foreground group-hover:text-foreground">View Audit Log</p>
+                    <p class="text-xs text-muted-foreground">Track system activity</p>
+                </div>
+            </a>
+            {% endif %}
+        </div>
+    </div>
 </div>
 {% endblock %}
