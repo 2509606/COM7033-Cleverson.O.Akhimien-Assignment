@@ -33,7 +33,7 @@
             <tbody>
                 {% for patient in patients %}
                 <tr class="border-b border-border last:border-0 hover:bg-muted/30 transition-colors">
-                    <td class="px-4 py-3 font-mono text-xs text-muted-foreground">{{ patient._id }}</td>
+                    <td class="px-4 py-3 font-medium">{{ patient.patient_id }}</td>
                     <td class="px-4 py-3">{{ patient.age }}</td>
                     <td class="px-4 py-3">
                         <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-secondary text-secondary-foreground">{{ patient.sex }}</span>
@@ -51,16 +51,16 @@
                     <td class="px-4 py-3 text-muted-foreground">{{ patient.created_by_name }}</td>
                     <td class="px-4 py-3 text-right">
                         <div class="flex items-center justify-end gap-1">
-                            <a href="{{ url_for('view_patient', patient_id=patient._id) }}"
+                            <a href="{{ url_for('view_patient', patient_id=patient.patient_id) }}"
                                class="inline-flex items-center px-2.5 py-1.5 text-xs font-medium rounded-md border border-border bg-background text-foreground hover:bg-accent transition-colors">
                                 View
                             </a>
-                            <a href="{{ url_for('edit_patient', patient_id=patient._id) }}"
+                            <a href="{{ url_for('edit_patient', patient_id=patient.patient_id) }}"
                                class="inline-flex items-center px-2.5 py-1.5 text-xs font-medium rounded-md border border-border bg-background text-foreground hover:bg-accent transition-colors">
                                 Edit
                             </a>
                             {% if session.get("role") == "admin" %}
-                            <form method="POST" action="{{ url_for('archive_patient', patient_id=patient._id) }}" class="inline">
+                            <form method="POST" action="{{ url_for('archive_patient', patient_id=patient.patient_id) }}" class="inline">
                                 <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                                 <button type="submit"
                                         onclick="return confirm('Are you sure you want to archive this patient?')"

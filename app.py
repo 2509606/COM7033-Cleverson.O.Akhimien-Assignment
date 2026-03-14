@@ -16,7 +16,6 @@ from flask import (
 )
 from werkzeug.security import generate_password_hash, check_password_hash
 from pymongo import MongoClient
-from bson.objectid import ObjectId
 
 load_dotenv()
 
@@ -177,6 +176,22 @@ def validate_patient_form(form):
     return errors
 
 
+# --- Patient ID helper ---
+
+# I want a short, readable patient ID (3 digits) instead of exposing the MongoDB ObjectId
+# This makes it easier for clinicians to reference patients
+def generate_patient_id():
+    last = patients_collection.find_one(
+        {"patient_id": {"$exists": True}},
+        sort=[("patient_id", -1)],
+    )
+    if last and last.get("patient_id"):
+        next_num = int(last["patient_id"]) + 1
+    else:
+        next_num = 1
+    return str(next_num).zfill(3)
+
+
 # --- Audit log helper ---
 
 # I want to keep track of who does what with patient records
@@ -318,6 +333,7 @@ def add_patient():
     if request.method == "POST":
         # I need to collect all the patient data from the form
         patient = {
+            "patient_id": generate_patient_id(),
             "age": request.form.get("age", "").strip(),
             "sex": request.form.get("sex", ""),
             "blood_pressure": request.form.get("blood_pressure", "").strip(),
@@ -341,10 +357,10 @@ def add_patient():
         patient["age"] = int(patient["age"])
 
         # Insert the patient record into the MongoDB Database
-        result = patients_collection.insert_one(patient)
-        
-        # Log the action to the audit log
-        log_action(session["user_id"], session["username"], "create", result.inserted_id)
+        patients_collection.insert_one(patient)
+
+        # Log the action using the short readable patient ID
+        log_action(session["user_id"], session["username"], "create", patient["patient_id"])
         flash("Patient record added successfully.", "success")
         return redirect(url_for("patients"))
 
@@ -354,12 +370,8 @@ def add_patient():
 @app.route("/patient/<patient_id>")
 @login_required
 def view_patient(patient_id):
-    # I need to find the patient by their MongoDB ObjectId
-    try:
-        patient = patients_collection.find_one({"_id": ObjectId(patient_id)})
-    except Exception:
-        flash("Invalid patient ID.", "error")
-        return redirect(url_for("patients"))
+    # I look up by the short readable patient_id field, not the MongoDB ObjectId
+    patient = patients_collection.find_one({"patient_id": patient_id})
 
     if not patient:
         flash("Patient not found.", "error")
@@ -372,11 +384,7 @@ def view_patient(patient_id):
 @app.route("/patient/<patient_id>/edit", methods=["GET", "POST"])
 @login_required
 def edit_patient(patient_id):
-    try:
-        patient = patients_collection.find_one({"_id": ObjectId(patient_id)})
-    except Exception:
-        flash("Invalid patient ID.", "error")
-        return redirect(url_for("patients"))
+    patient = patients_collection.find_one({"patient_id": patient_id})
 
     if not patient:
         flash("Patient not found.", "error")
@@ -403,7 +411,7 @@ def edit_patient(patient_id):
 
         updated["age"] = int(updated["age"])
         patients_collection.update_one(
-            {"_id": ObjectId(patient_id)},
+            {"patient_id": patient_id},
             {"$set": updated}
         )
         log_action(session["user_id"], session["username"], "edit", patient_id)
@@ -417,14 +425,10 @@ def edit_patient(patient_id):
 @app.route("/patient/<patient_id>/archive", methods=["POST"])
 @admin_required
 def archive_patient(patient_id):
-    try:
-        result = patients_collection.update_one(
-            {"_id": ObjectId(patient_id)},
-            {"$set": {"status": "archived"}}
-        )
-    except Exception:
-        flash("Invalid patient ID.", "error")
-        return redirect(url_for("patients"))
+    result = patients_collection.update_one(
+        {"patient_id": patient_id},
+        {"$set": {"status": "archived"}}
+    )
 
     if result.modified_count == 0:
         flash("Patient not found.", "error")
