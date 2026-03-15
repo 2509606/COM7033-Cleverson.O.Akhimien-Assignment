@@ -327,6 +327,8 @@ def patients():
         .skip(skip)
         .limit(per_page)
     )
+    total_active = patients_collection.count_documents({"status": "active"})
+    total_archived = patients_collection.count_documents({"status": "archived"})
     return render_template(
         "patients.html",
         patients=all_patients,
@@ -334,6 +336,8 @@ def patients():
         total_pages=total_pages,
         total=total,
         search=search,
+        total_active=total_active,
+        total_archived=total_archived,
     )
 
 

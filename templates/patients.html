@@ -15,6 +15,33 @@
     </a>
 </div>
 
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+    <div class="bg-card border border-border rounded-xl p-5 shadow-sm">
+        <div class="flex items-center justify-between mb-3">
+            <p class="text-sm text-muted-foreground">Total Patients</p>
+            <svg class="w-4 h-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        </div>
+        <p class="text-3xl font-bold text-card-foreground tracking-tight">{{ total_active + total_archived }}</p>
+        <p class="text-xs text-muted-foreground mt-1">All patient records</p>
+    </div>
+    <div class="bg-card border border-border rounded-xl p-5 shadow-sm">
+        <div class="flex items-center justify-between mb-3">
+            <p class="text-sm text-muted-foreground">Active</p>
+            <svg class="w-4 h-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        </div>
+        <p class="text-3xl font-bold text-card-foreground tracking-tight">{{ total_active }}</p>
+        <p class="text-xs text-muted-foreground mt-1">Active records</p>
+    </div>
+    <div class="bg-card border border-border rounded-xl p-5 shadow-sm">
+        <div class="flex items-center justify-between mb-3">
+            <p class="text-sm text-muted-foreground">Archived</p>
+            <svg class="w-4 h-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>
+        </div>
+        <p class="text-3xl font-bold text-card-foreground tracking-tight">{{ total_archived }}</p>
+        <p class="text-xs text-muted-foreground mt-1">Archived records</p>
+    </div>
+</div>
+
 <form method="GET" action="{{ url_for('patients') }}" class="mb-4" id="patient-search-form">
     <div class="relative max-w-sm">
         <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
