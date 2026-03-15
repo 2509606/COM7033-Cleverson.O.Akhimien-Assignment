@@ -15,25 +15,31 @@
     </a>
 </div>
 
-<form method="GET" action="{{ url_for('admin_users') }}" class="mb-4">
-    <div class="flex items-center gap-2">
-        <div class="relative flex-1 max-w-sm">
-            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-            <input type="text" name="search" value="{{ search }}" placeholder="Search by username..."
-                   class="w-full pl-10 pr-4 py-2 text-sm rounded-lg border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring">
-        </div>
-        <button type="submit"
-                class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors">
-            Search
-        </button>
-        {% if search %}
-        <a href="{{ url_for('admin_users') }}"
-           class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg border border-border bg-background text-foreground hover:bg-accent transition-colors">
-            Clear
-        </a>
-        {% endif %}
+<form method="GET" action="{{ url_for('admin_users') }}" class="mb-4" id="user-search-form">
+    <div class="relative max-w-sm">
+        <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        <input type="text" name="search" value="{{ search }}" placeholder="Search by username..."
+               class="w-full pl-10 pr-4 py-2 text-sm rounded-lg border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+               id="user-search-input" {% if search %}autofocus{% endif %}>
     </div>
 </form>
+<script>
+(function() {
+    var input = document.getElementById("user-search-input");
+    var len = input.value.length;
+    if (len) input.setSelectionRange(len, len);
+    var timer;
+    var baseUrl = "{{ url_for('admin_users') }}";
+    input.addEventListener("input", function() {
+        clearTimeout(timer);
+        timer = setTimeout(function() {
+            var val = input.value.trim();
+            var url = val ? baseUrl + "?search=" + encodeURIComponent(val) : baseUrl;
+            window.location.replace(url);
+        }, 300);
+    });
+})();
+</script>
 
 <div class="bg-card border border-border rounded-xl shadow-sm overflow-hidden">
     <div class="overflow-x-auto">
