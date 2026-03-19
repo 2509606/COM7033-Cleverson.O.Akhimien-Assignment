@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}Create Prescription - Patient Records{% endblock %}
+{% block page_title %}Create Prescription{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl">
+    <div class="mb-6">
+        <h1 class="text-2xl font-semibold text-foreground tracking-tight">New Prescription</h1>
+        <p class="text-sm text-muted-foreground mt-1">Create a prescription for a patient</p>
+    </div>
+
+    <div class="bg-card border border-border rounded-xl shadow-sm">
+        <form method="POST" class="p-6 space-y-5">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+            <div>
+                <label for="patient_user_id" class="block text-sm font-medium text-foreground mb-1.5">Patient</label>
+                <select id="patient_user_id" name="patient_user_id" required
+                        class="w-full px-3 py-2 text-sm rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring/40 focus:border-ring transition-colors">
+                    <option value="">-- Select Patient --</option>
+                    {% for p in patients %}
+                    <option value="{{ p.id }}">{{ p.username }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-foreground mb-2">Medications</label>
+                <div id="medications-container" class="space-y-3">
+                    <div class="grid grid-cols-4 gap-2 p-3 bg-muted/30 rounded-lg">
+                        <input type="text" name="med_name" placeholder="Medication name" required
+                               class="px-3 py-2 text-sm rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/40 transition-colors">
+                        <input type="text" name="med_dosage" placeholder="Dosage (e.g. 500mg)"
+                               class="px-3 py-2 text-sm rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/40 transition-colors">
+                        <input type="text" name="med_frequency" placeholder="Frequency (e.g. 2x daily)"
+                               class="px-3 py-2 text-sm rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/40 transition-colors">
+                        <input type="text" name="med_duration" placeholder="Duration (e.g. 7 days)"
+                               class="px-3 py-2 text-sm rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/40 transition-colors">
+                    </div>
+                </div>
+                <button type="button" onclick="addMedication()"
+                        class="mt-2 inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium rounded-md border border-border bg-background text-foreground hover:bg-accent transition-colors cursor-pointer">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v12m6-6H6"/></svg>
+                    Add Another Medication
+                </button>
+            </div>
+
+            <div>
+                <label for="notes" class="block text-sm font-medium text-foreground mb-1.5">Notes</label>
+                <textarea id="notes" name="notes" rows="3"
+                          class="w-full px-3 py-2 text-sm rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/40 focus:border-ring transition-colors resize-none"
+                          placeholder="Additional notes (optional)"></textarea>
+            </div>
+
+            <div class="flex items-center gap-3 pt-2">
+                <button type="submit"
+                        class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors cursor-pointer">
+                    Create Prescription
+                </button>
+                <a href="{{ url_for('prescriptions_bp.prescriptions') }}"
+                   class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg border border-border bg-background text-foreground hover:bg-accent transition-colors">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function addMedication() {
+    var container = document.getElementById("medications-container");
+    var row = document.createElement("div");
+    row.className = "grid grid-cols-4 gap-2 p-3 bg-muted/30 rounded-lg";
+    row.innerHTML = '<input type="text" name="med_name" placeholder="Medication name" class="px-3 py-2 text-sm rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/40 transition-colors">' +
+        '<input type="text" name="med_dosage" placeholder="Dosage" class="px-3 py-2 text-sm rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/40 transition-colors">' +
+        '<input type="text" name="med_frequency" placeholder="Frequency" class="px-3 py-2 text-sm rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/40 transition-colors">' +
+        '<input type="text" name="med_duration" placeholder="Duration" class="px-3 py-2 text-sm rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/40 transition-colors">';
+    container.appendChild(row);
+}
+</script>
+{% endblock %}

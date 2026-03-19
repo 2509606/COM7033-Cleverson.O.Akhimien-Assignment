@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %}Prescription Details - Patient Records{% endblock %}
+{% block page_title %}Prescription Details{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl">
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <h1 class="text-2xl font-semibold text-foreground tracking-tight">Prescription Details</h1>
+            <p class="text-sm text-muted-foreground mt-1">{{ prescription.prescription_id }}</p>
+        </div>
+        <a href="{{ url_for('prescriptions_bp.prescriptions') }}"
+           class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg border border-border bg-background text-foreground hover:bg-accent transition-colors">
+            Back to List
+        </a>
+    </div>
+
+    <div class="bg-card border border-border rounded-xl shadow-sm overflow-hidden mb-6">
+        <div class="divide-y divide-border">
+            <div class="grid grid-cols-3 px-5 py-3.5">
+                <dt class="text-sm font-medium text-muted-foreground">Patient</dt>
+                <dd class="col-span-2 text-sm text-card-foreground">{{ prescription.patient_username }}</dd>
+            </div>
+            <div class="grid grid-cols-3 px-5 py-3.5 bg-muted/30">
+                <dt class="text-sm font-medium text-muted-foreground">Doctor</dt>
+                <dd class="col-span-2 text-sm text-card-foreground">Dr. {{ prescription.doctor_username }}</dd>
+            </div>
+            <div class="grid grid-cols-3 px-5 py-3.5">
+                <dt class="text-sm font-medium text-muted-foreground">Status</dt>
+                <dd class="col-span-2 text-sm">
+                    {% if prescription.status == "active" %}
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-emerald-50 text-emerald-700">{{ prescription.status }}</span>
+                    {% elif prescription.status == "completed" %}
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-blue-50 text-blue-700">{{ prescription.status }}</span>
+                    {% else %}
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-red-50 text-red-700">{{ prescription.status }}</span>
+                    {% endif %}
+                </dd>
+            </div>
+            <div class="grid grid-cols-3 px-5 py-3.5 bg-muted/30">
+                <dt class="text-sm font-medium text-muted-foreground">Date</dt>
+                <dd class="col-span-2 text-sm text-card-foreground">{{ prescription.created_at|datetimeformat }}</dd>
+            </div>
+            {% if prescription.notes %}
+            <div class="grid grid-cols-3 px-5 py-3.5">
+                <dt class="text-sm font-medium text-muted-foreground">Notes</dt>
+                <dd class="col-span-2 text-sm text-card-foreground">{{ prescription.notes }}</dd>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Medications -->
+    <h3 class="text-base font-semibold text-foreground mb-3">Medications</h3>
+    <div class="bg-card border border-border rounded-xl shadow-sm overflow-hidden mb-6">
+        <table class="w-full text-sm">
+            <thead>
+                <tr class="border-b border-border bg-muted/50">
+                    <th class="text-left px-4 py-3 font-medium text-muted-foreground">Medication</th>
+                    <th class="text-left px-4 py-3 font-medium text-muted-foreground">Dosage</th>
+                    <th class="text-left px-4 py-3 font-medium text-muted-foreground">Frequency</th>
+                    <th class="text-left px-4 py-3 font-medium text-muted-foreground">Duration</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for med in prescription.medications %}
+                <tr class="border-b border-border last:border-0">
+                    <td class="px-4 py-3 font-medium">{{ med.name }}</td>
+                    <td class="px-4 py-3">{{ med.dosage or "—" }}</td>
+                    <td class="px-4 py-3">{{ med.frequency or "—" }}</td>
+                    <td class="px-4 py-3">{{ med.duration or "—" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% if session.get("role") in ("doctor", "admin") and prescription.status == "active" %}
+    <div class="flex items-center gap-2">
+        <form method="POST" action="{{ url_for('prescriptions_bp.complete_prescription', prescription_id=prescription.prescription_id) }}" class="inline">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <button type="submit" class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 transition-colors cursor-pointer">
+                Mark Completed
+            </button>
+        </form>
+        <form method="POST" action="{{ url_for('prescriptions_bp.cancel_prescription', prescription_id=prescription.prescription_id) }}" class="inline">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <button type="submit" onclick="return confirm('Cancel this prescription?')"
+                    class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-colors cursor-pointer">
+                Cancel Prescription
+            </button>
+        </form>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
