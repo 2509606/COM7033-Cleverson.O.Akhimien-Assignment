@@ -5,5 +5,5 @@ users.db
 .pytest_cache
 .env
 documents
-uploads/
+/uploads/
 .DS_Store
