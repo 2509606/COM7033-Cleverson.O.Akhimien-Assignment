@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block title %}Appointment Details - Patient Records{% endblock %}
+{% block page_title %}Appointment Details{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl">
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <h1 class="text-2xl font-semibold text-foreground tracking-tight">Appointment Details</h1>
+            <p class="text-sm text-muted-foreground mt-1">{{ appointment.appointment_id }}</p>
+        </div>
+        <a href="{{ url_for('appointments_bp.appointments') }}"
+           class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg border border-border bg-background text-foreground hover:bg-accent transition-colors">
+            Back to List
+        </a>
+    </div>
+
+    <div class="bg-card border border-border rounded-xl shadow-sm overflow-hidden mb-6">
+        <div class="divide-y divide-border">
+            <div class="grid grid-cols-3 px-5 py-3.5">
+                <dt class="text-sm font-medium text-muted-foreground">Patient</dt>
+                <dd class="col-span-2 text-sm text-card-foreground">{{ appointment.patient_username }}</dd>
+            </div>
+            <div class="grid grid-cols-3 px-5 py-3.5 bg-muted/30">
+                <dt class="text-sm font-medium text-muted-foreground">Doctor</dt>
+                <dd class="col-span-2 text-sm text-card-foreground">Dr. {{ appointment.clinician_username }}</dd>
+            </div>
+            <div class="grid grid-cols-3 px-5 py-3.5">
+                <dt class="text-sm font-medium text-muted-foreground">Date & Time</dt>
+                <dd class="col-span-2 text-sm text-card-foreground">{{ appointment.date }} at {{ appointment.time }}</dd>
+            </div>
+            <div class="grid grid-cols-3 px-5 py-3.5 bg-muted/30">
+                <dt class="text-sm font-medium text-muted-foreground">Reason</dt>
+                <dd class="col-span-2 text-sm text-card-foreground">{{ appointment.reason }}</dd>
+            </div>
+            <div class="grid grid-cols-3 px-5 py-3.5">
+                <dt class="text-sm font-medium text-muted-foreground">Status</dt>
+                <dd class="col-span-2 text-sm">
+                    {% if appointment.status == "confirmed" %}
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-blue-50 text-blue-700">{{ appointment.status }}</span>
+                    {% elif appointment.status == "completed" %}
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-emerald-50 text-emerald-700">{{ appointment.status }}</span>
+                    {% elif appointment.status == "cancelled" %}
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-red-50 text-red-700">{{ appointment.status }}</span>
+                    {% else %}
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-amber-50 text-amber-700">{{ appointment.status }}</span>
+                    {% endif %}
+                </dd>
+            </div>
+            {% if appointment.notes %}
+            <div class="grid grid-cols-3 px-5 py-3.5 bg-muted/30">
+                <dt class="text-sm font-medium text-muted-foreground">Notes</dt>
+                <dd class="col-span-2 text-sm text-card-foreground">{{ appointment.notes }}</dd>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Action buttons -->
+    <div class="flex items-center gap-2">
+        {% if session.get("role") in ("admin", "doctor") and appointment.status == "pending" %}
+        <form method="POST" action="{{ url_for('appointments_bp.confirm_appointment', appointment_id=appointment.appointment_id) }}" class="inline">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <button type="submit" class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors cursor-pointer">
+                Confirm
+            </button>
+        </form>
+        {% endif %}
+
+        {% if session.get("role") in ("admin", "doctor") and appointment.status in ("pending", "confirmed") %}
+        <form method="POST" action="{{ url_for('appointments_bp.complete_appointment', appointment_id=appointment.appointment_id) }}" class="inline">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <input type="text" name="notes" placeholder="Add notes (optional)" class="px-3 py-2 text-sm rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/40 transition-colors">
+            <button type="submit" class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 transition-colors cursor-pointer">
+                Complete
+            </button>
+        </form>
+        {% endif %}
+
+        {% if appointment.status in ("pending", "confirmed") %}
+            {% if session.get("role") == "patient" and appointment.patient_user_id == session.get("user_id") %}
+            <form method="POST" action="{{ url_for('appointments_bp.cancel_appointment', appointment_id=appointment.appointment_id) }}" class="inline">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                <button type="submit" onclick="return confirm('Cancel this appointment?')"
+                        class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-colors cursor-pointer">
+                    Cancel Appointment
+                </button>
+            </form>
+            {% elif session.get("role") in ("admin", "doctor") %}
+            <form method="POST" action="{{ url_for('appointments_bp.cancel_appointment', appointment_id=appointment.appointment_id) }}" class="inline">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                <button type="submit" onclick="return confirm('Cancel this appointment?')"
+                        class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-colors cursor-pointer">
+                    Cancel Appointment
+                </button>
+            </form>
+            {% endif %}
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

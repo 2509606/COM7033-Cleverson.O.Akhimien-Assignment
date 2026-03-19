@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Book Appointment - Patient Records{% endblock %}
+{% block page_title %}Book Appointment{% endblock %}
+
+{% block content %}
+<div class="max-w-md">
+    <div class="mb-6">
+        <h1 class="text-2xl font-semibold text-foreground tracking-tight">Book an Appointment</h1>
+        <p class="text-sm text-muted-foreground mt-1">Schedule a new appointment with a doctor</p>
+    </div>
+
+    <div class="bg-card border border-border rounded-xl shadow-sm">
+        <form method="POST" class="p-6 space-y-5">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+            <div>
+                <label for="clinician_id" class="block text-sm font-medium text-foreground mb-1.5">Doctor</label>
+                <select id="clinician_id" name="clinician_id" required
+                        class="w-full px-3 py-2 text-sm rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring/40 focus:border-ring transition-colors">
+                    <option value="">-- Select Doctor --</option>
+                    {% for doc in doctors %}
+                    <option value="{{ doc.id }}">Dr. {{ doc.username }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div>
+                <label for="date" class="block text-sm font-medium text-foreground mb-1.5">Date</label>
+                <input type="date" id="date" name="date" required
+                       class="w-full px-3 py-2 text-sm rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring/40 focus:border-ring transition-colors">
+            </div>
+
+            <div>
+                <label for="time" class="block text-sm font-medium text-foreground mb-1.5">Time</label>
+                <input type="time" id="time" name="time" required
+                       class="w-full px-3 py-2 text-sm rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring/40 focus:border-ring transition-colors">
+            </div>
+
+            <div>
+                <label for="reason" class="block text-sm font-medium text-foreground mb-1.5">Reason for Visit</label>
+                <textarea id="reason" name="reason" rows="3" required
+                          class="w-full px-3 py-2 text-sm rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/40 focus:border-ring transition-colors resize-none"
+                          placeholder="Briefly describe the reason for your visit"></textarea>
+            </div>
+
+            <div class="flex items-center gap-3 pt-2">
+                <button type="submit"
+                        class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors cursor-pointer">
+                    Book Appointment
+                </button>
+                <a href="{{ url_for('appointments_bp.appointments') }}"
+                   class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg border border-border bg-background text-foreground hover:bg-accent transition-colors">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

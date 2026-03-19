@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}Appointments - Patient Records{% endblock %}
+{% block page_title %}Appointments{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+    <div>
+        <h1 class="text-2xl font-semibold text-foreground tracking-tight">{% if session.get("role") == "patient" %}My Appointments{% else %}Appointments{% endif %}</h1>
+        <p class="text-sm text-muted-foreground mt-1">{% if session.get("role") == "patient" %}View and manage your appointments{% else %}Manage all appointments{% endif %}</p>
+    </div>
+    {% if session.get("role") == "patient" %}
+    <a href="{{ url_for('appointments_bp.book_appointment') }}"
+       class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+        Book Appointment
+    </a>
+    {% endif %}
+</div>
+
+{% if appointments %}
+<div class="bg-card border border-border rounded-xl shadow-sm overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+            <thead>
+                <tr class="border-b border-border bg-muted/50">
+                    <th class="text-left px-4 py-3 font-medium text-muted-foreground">ID</th>
+                    {% if session.get("role") != "patient" %}
+                    <th class="text-left px-4 py-3 font-medium text-muted-foreground">Patient</th>
+                    {% endif %}
+                    <th class="text-left px-4 py-3 font-medium text-muted-foreground">Doctor</th>
+                    <th class="text-left px-4 py-3 font-medium text-muted-foreground">Date</th>
+                    <th class="text-left px-4 py-3 font-medium text-muted-foreground">Time</th>
+                    <th class="text-left px-4 py-3 font-medium text-muted-foreground">Status</th>
+                    <th class="text-right px-4 py-3 font-medium text-muted-foreground">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for appt in appointments %}
+                <tr class="border-b border-border last:border-0 hover:bg-muted/30 transition-colors">
+                    <td class="px-4 py-3 font-mono text-xs">{{ appt.appointment_id }}</td>
+                    {% if session.get("role") != "patient" %}
+                    <td class="px-4 py-3 font-medium">{{ appt.patient_username }}</td>
+                    {% endif %}
+                    <td class="px-4 py-3">{{ appt.clinician_username }}</td>
+                    <td class="px-4 py-3">{{ appt.date }}</td>
+                    <td class="px-4 py-3">{{ appt.time }}</td>
+                    <td class="px-4 py-3">
+                        {% if appt.status == "confirmed" %}
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-blue-50 text-blue-700">{{ appt.status }}</span>
+                        {% elif appt.status == "completed" %}
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-emerald-50 text-emerald-700">{{ appt.status }}</span>
+                        {% elif appt.status == "cancelled" %}
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-red-50 text-red-700">{{ appt.status }}</span>
+                        {% else %}
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-amber-50 text-amber-700">{{ appt.status }}</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-4 py-3 text-right">
+                        <div class="flex items-center justify-end gap-1">
+                            <a href="{{ url_for('appointments_bp.view_appointment', appointment_id=appt.appointment_id) }}"
+                               class="inline-flex items-center px-2.5 py-1.5 text-xs font-medium rounded-md border border-border bg-background text-foreground hover:bg-accent transition-colors">
+                                View
+                            </a>
+                            {% if session.get("role") == "patient" and appt.status in ("pending", "confirmed") %}
+                            <a href="{{ url_for('payments_bp.checkout', appointment_id=appt.appointment_id) }}"
+                               class="inline-flex items-center px-2.5 py-1.5 text-xs font-medium rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors">
+                                Pay
+                            </a>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% else %}
+<div class="bg-card border border-border rounded-xl shadow-sm p-12 text-center">
+    <svg class="w-12 h-12 mx-auto text-muted-foreground/40 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+    <p class="text-muted-foreground text-sm">No appointments found.</p>
+    {% if session.get("role") == "patient" %}
+    <a href="{{ url_for('appointments_bp.book_appointment') }}" class="inline-flex items-center gap-2 mt-4 px-4 py-2 text-sm font-medium rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors">
+        Book Your First Appointment
+    </a>
+    {% endif %}
+</div>
+{% endif %}
+
+{% include "pagination.html" %}
+{% endblock %}
